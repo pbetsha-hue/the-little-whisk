@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check your order — The Little Whisk</title>
+<link rel="icon" href="/images/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="/"><img class="logo-mark" src="/images/logo-mark.png" alt=""><span class="logo-text"><img class="logo-word" src="/images/logo-word.png" alt="The Little Whisk"><small>simple bakes. made with love.</small></span></a>
+    <nav class="nav"><a href="/">Back to the shop</a></nav>
+  </div>
+</header>
+<main class="wrap" style="max-width:640px;padding:3rem 0">
+  <p class="eyebrow">Order status</p>
+  <h1 style="font-size:2.2rem">Check on your bake</h1>
+  <p style="color:var(--ink-soft)">Pop in your order number and the email you used, and we will show you where things stand.</p>
+  <form id="lookup" style="margin-top:1.6rem">
+    <div class="field"><label for="num">Order number</label><input id="num" placeholder="LW-20260827-1234" required></div>
+    <div class="field"><label for="mail">Email</label><input id="mail" type="email" required></div>
+    <button class="btn" type="submit">Look it up</button>
+  </form>
+  <div id="out" style="margin-top:1.8rem"></div>
+</main>
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LABEL = { new:'Received — we will confirm shortly', confirmed:'Confirmed', baking:'In the kitchen', ready:'Ready', completed:'Collected / delivered', cancelled:'Cancelled' };
+const PAY = { unpaid:'Not yet paid', paid:'Paid — thank you', refunded:'Refunded' };
+document.getElementById('lookup').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const out = document.getElementById('out');
+  out.innerHTML = '<p style="color:var(--ink-faint)">Looking…</p>';
+  const url = `/api/orders/lookup?number=${encodeURIComponent(num.value.trim())}&email=${encodeURIComponent(mail.value.trim())}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) { out.innerHTML = `<div class="alert error">${esc(data.error)}</div>`; return; }
+  const o = data.order;
+  const when = new Date(o.wanted_date + 'T12:00:00').toLocaleDateString(undefined, { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  out.innerHTML = `
+    <div class="summary-box">
+      <div class="row"><span>Order</span><strong>${esc(o.order_number)}</strong></div>
+      <div class="row"><span>Status</span><strong>${esc(LABEL[o.status] || o.status)}</strong></div>
+      <div class="row"><span>${o.fulfillment === 'delivery' ? 'Delivery' : 'Pickup'}</span><span>${esc(when)}${o.wanted_time ? ' · ' + esc(o.wanted_time) : ''}</span></div>
+      <div class="row"><span>Payment</span><span>${esc(PAY[o.payment_status] || o.payment_status)}</span></div>
+      <div class="row" style="border-top:1px solid var(--line);margin-top:.4rem;padding-top:.5rem"><span>Total</span><strong>${esc(o.total)}</strong></div>
+    </div>
+    <p style="font-weight:600">What is in it</p>
+    <div class="summary-box">${o.items.map(i => `<div class="row"><span>${i.quantity} × ${esc(i.item_name)}${i.option_label ? ' (' + esc(i.option_label) + ')' : ''}</span><span>${esc(i.line_total)}</span></div>`).join('')}</div>`;
+});
+</script>
+</body>
+</html>

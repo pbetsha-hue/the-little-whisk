@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Kitchen desk — The Little Whisk</title>
+<link rel="icon" href="/images/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin">
+
+<div id="login" class="login-wrap" hidden>
+  <form class="login-card" id="loginForm">
+    <img class="login-logo" src="/images/logo-full.png" alt="The Little Whisk">
+    <h2 style="margin-bottom:.2rem">Kitchen desk</h2>
+    <p class="muted" style="font-size:.9rem;margin-top:0">Sign in to manage orders and the menu.</p>
+    <div id="loginError" class="alert error" hidden></div>
+    <div class="field" style="text-align:left"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required></div>
+    <button class="btn block" type="submit">Sign in</button>
+    <p style="margin:1.2rem 0 0"><a href="/" style="font-size:.85rem">← Back to the shop</a></p>
+  </form>
+</div>
+
+<div id="app" class="admin-shell" hidden>
+  <aside class="sidebar">
+    <a class="brand" href="/" target="_blank" rel="noopener">
+      <img class="logo-mark" src="/images/logo-mark-light.png" alt="">
+      <span class="logo-text"><img class="logo-word" src="/images/logo-word-light.png" alt="The Little Whisk"><small>kitchen desk</small></span>
+    </a>
+    <nav class="side-nav" id="sideNav">
+      <button data-view="dashboard" class="active">Dashboard</button>
+      <button data-view="orders">Orders <span class="pill" id="newPill" hidden></span></button>
+      <button data-view="menu">Menu & prices</button>
+      <button data-view="settings">Shop settings</button>
+    </nav>
+    <div class="foot">
+      <a href="/" target="_blank" rel="noopener">View the shop ↗</a>
+      <button class="btn ghost small" id="signOut">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <!-- DASHBOARD -->
+    <section data-page="dashboard">
+      <div class="page-head">
+        <div><h1>Dashboard</h1><p>How the shop is doing.</p></div>
+        <div class="seg" id="rangeSeg">
+          <button data-days="7">7 days</button>
+          <button data-days="30" class="on">30 days</button>
+          <button data-days="90">90 days</button>
+        </div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <div class="panel">
+        <div class="chart-head">
+          <div><h3 id="chartTitle">Orders per day</h3><p class="sub" id="chartSub">Every day in the selected range.</p></div>
+          <div class="seg" id="metricSeg"><button data-metric="orders" class="on">Orders</button><button data-metric="revenue">Revenue</button></div>
+        </div>
+        <div class="chart" id="chart"><div class="chart-tip" id="chartTip"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:1.3rem" class="dash-cols">
+        <div class="panel">
+          <h3>Best sellers</h3><p class="sub">By money taken in the selected range.</p>
+          <div class="table-wrap"><table class="data" id="topItems"></table></div>
+        </div>
+        <div class="panel">
+          <h3>Coming up</h3><p class="sub">The next orders due out of the kitchen.</p>
+          <div class="table-wrap"><table class="data" id="upcoming"></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section data-page="orders" hidden>
+      <div class="page-head">
+        <div><h1>Orders</h1><p>Click a row to open it. Changes save straight away.</p></div>
+        <a class="btn ghost small" href="/api/admin/orders.csv">Export CSV</a>
+      </div>
+      <div class="panel">
+        <div class="filters">
+          <div class="field"><label for="fQ">Search</label><input id="fQ" placeholder="Name, email, phone, order no."></div>
+          <div class="field"><label for="fStatus">Status</label><select id="fStatus"><option value="">All</option><option value="new">New</option><option value="confirmed">Confirmed</option><option value="baking">In the kitchen</option><option value="ready">Ready</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div>
+          <div class="field"><label for="fPay">Payment</label><select id="fPay"><option value="">All</option><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="refunded">Refunded</option></select></div>
+          <div class="field"><label for="fFrom">Wanted from</label><input id="fFrom" type="date"></div>
+          <div class="field"><label for="fTo">Wanted to</label><input id="fTo" type="date"></div>
+          <button class="btn ghost small" id="fClear">Clear</button>
+        </div>
+        <div class="table-wrap"><table class="data" id="ordersTable"></table></div>
+      </div>
+    </section>
+
+    <!-- MENU -->
+    <section data-page="menu" hidden>
+      <div class="page-head">
+        <div><h1>Menu &amp; prices</h1><p>Add items, change prices, upload photos, hide anything you are not baking this week.</p></div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn ghost small" id="addCategory">New section</button>
+          <button class="btn small" id="addItem">New item</button>
+        </div>
+      </div>
+      <div id="menuEditor"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section data-page="settings" hidden>
+      <div class="page-head"><div><h1>Shop settings</h1><p>Everything the customer sees, plus your password.</p></div></div>
+      <form class="panel" id="settingsForm">
+        <h3>The basics</h3><p class="sub">Shown across the shop and in confirmations.</p>
+        <div class="two-col">
+          <div class="field"><label for="s_shop_name">Shop name</label><input id="s_shop_name" data-set="shop_name"></div>
+          <div class="field"><label for="s_tagline">Tagline</label><input id="s_tagline" data-set="tagline"></div>
+        </div>
+        <div class="field"><label for="s_intro">Intro paragraph</label><textarea id="s_intro" data-set="intro"></textarea></div>
+        <div class="two-col">
+          <div class="field"><label for="s_phone">Phone</label><input id="s_phone" data-set="phone"></div>
+          <div class="field"><label for="s_email">Email</label><input id="s_email" data-set="email"></div>
+        </div>
+        <div class="two-col">
+          <div class="field"><label for="s_address">Address / area</label><input id="s_address" data-set="address"></div>
+          <div class="field"><label for="s_instagram">Instagram</label><input id="s_instagram" data-set="instagram"></div>
+        </div>
+        <div class="field"><label for="s_announcement">Announcement bar <span class="hint">leave empty to hide</span></label><input id="s_announcement" data-set="announcement" placeholder="Christmas orders close 15 December"></div>
+
+        <h3 style="margin-top:1.8rem">Orders</h3><p class="sub">How far ahead people must order, and how they get their food.</p>
+        <div class="two-col">
+          <div class="field"><label for="s_currency_symbol">Currency symbol</label><input id="s_currency_symbol" data-set="currency_symbol"></div>
+          <div class="field"><label for="s_min_lead_days">Minimum notice (days)</label><input id="s_min_lead_days" data-set="min_lead_days" type="number" min="0"></div>
+        </div>
+        <div class="field"><label for="s_pickup_hours">Pickup hours</label><input id="s_pickup_hours" data-set="pickup_hours"></div>
+        <div class="two-col">
+          <div class="field"><label for="s_delivery_enabled">Offer delivery?</label><select id="s_delivery_enabled" data-set="delivery_enabled"><option value="1">Yes</option><option value="0">No</option></select></div>
+          <div class="field"><label for="s_delivery_fee">Delivery fee</label><input id="s_delivery_fee" data-set="delivery_fee" type="number" min="0" step="0.01"></div>
+        </div>
+        <div class="field"><label for="s_delivery_note">Delivery note</label><input id="s_delivery_note" data-set="delivery_note"></div>
+
+        <h3 style="margin-top:1.8rem">Payment</h3><p class="sub">Shown to anyone who chooses bank transfer.</p>
+        <div class="field"><label for="s_bank_details">Bank transfer details</label><textarea id="s_bank_details" data-set="bank_details" style="min-height:140px"></textarea></div>
+        <div class="field"><label for="s_order_confirmation_note">Confirmation message</label><input id="s_order_confirmation_note" data-set="order_confirmation_note"></div>
+        <button class="btn" type="submit">Save settings</button>
+        <span id="settingsSaved" class="muted" style="margin-left:.8rem;font-size:.86rem"></span>
+      </form>
+
+      <form class="panel" id="passwordForm">
+        <h3>Change your password</h3><p class="sub">You will be signed out on every device afterwards.</p>
+        <div id="pwError" class="alert error" hidden></div>
+        <div class="two-col">
+          <div class="field"><label for="pwCurrent">Current password</label><input id="pwCurrent" type="password" autocomplete="current-password"></div>
+          <div class="field"><label for="pwNext">New password <span class="hint">8+ characters</span></label><input id="pwNext" type="password" autocomplete="new-password"></div>
+        </div>
+        <button class="btn" type="submit">Update password</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- item editor -->
+<div class="modal" id="itemModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="itemModalTitle">Edit item</h3><button class="icon-btn" data-close-item>&times;</button></div>
+    <div class="modal-body">
+      <div id="itemError" class="alert error" hidden></div>
+      <form id="itemForm">
+        <div class="two-col">
+          <div class="field"><label for="iName">Name</label><input id="iName" required></div>
+          <div class="field"><label for="iCat">Section</label><select id="iCat"></select></div>
+        </div>
+        <div class="field"><label for="iDesc">Description</label><textarea id="iDesc"></textarea></div>
+        <div class="two-col">
+          <div class="field"><label for="iPrice">Base price</label><input id="iPrice" type="number" min="0" step="0.01" required></div>
+          <div class="field"><label for="iUnit">Unit label <span class="hint">e.g. per dozen</span></label><input id="iUnit"></div>
+        </div>
+        <div class="two-col">
+          <div class="field"><label for="iLead">Notice needed (days)</label><input id="iLead" type="number" min="0" value="2"></div>
+          <div class="field"><label for="iEmoji">Emoji <span class="hint">used if there is no photo</span></label><input id="iEmoji" maxlength="4"></div>
+        </div>
+
+        <div class="field">
+          <label>Photo</label>
+          <div style="display:flex;gap:1rem;align-items:center">
+            <img id="iPreview" class="img-preview" alt="" hidden>
+            <div style="flex:1">
+              <div class="drop-zone" id="iDrop">Click to choose a photo, or drag one here<br><span style="font-size:.78rem">JPG, PNG or WEBP · up to 6MB</span></div>
+              <input type="file" id="iFile" accept="image/*" hidden>
+              <input id="iImage" placeholder="/images/your-photo.jpg" style="margin-top:.5rem;font-size:.82rem">
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Sizes / quantity choices <span class="hint">optional — the price added to the base price</span></label>
+          <input id="iOptLabel" placeholder="What is this choice called? e.g. Size" style="margin-bottom:.6rem">
+          <div id="iOptions"></div>
+          <button class="btn ghost small" type="button" id="addOption">Add a choice</button>
+        </div>
+
+        <div style="display:flex;gap:1.4rem;margin:1rem 0">
+          <label class="switch"><input type="checkbox" id="iAvailable" checked> Available to order</label>
+          <label class="switch"><input type="checkbox" id="iFeatured"> Show a "favourite" badge</label>
+        </div>
+        <div style="display:flex;gap:.6rem">
+          <button class="btn" type="submit">Save item</button>
+          <button class="btn ghost" type="button" data-close-item>Cancel</button>
+          <button class="btn ghost" type="button" id="deleteItem" style="margin-left:auto;color:#8d2b1c;border-color:#f2c4bc">Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adminOverlay"></div>
+<div class="toast" id="toast"></div>
+<script src="/js/admin.js"></script>
+</body>
+</html>

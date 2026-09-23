@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Little Whisk — small-batch bakes, made to order</title>
+<meta name="description" content="Made-to-order cakes, cookies, pastries and savoury bites, baked fresh for your date. Order online for pickup or delivery.">
+<link rel="icon" href="/images/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<div id="announce" class="announce" hidden></div>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="/">
+      <img class="logo-mark" src="/images/logo-mark.png" alt="">
+      <span class="logo-text"><img class="logo-word" id="brandName" src="/images/logo-word.png" alt="The Little Whisk"><small id="brandTag">simple bakes. made with love.</small></span>
+    </a>
+    <nav class="nav">
+      <a href="#menu">Menu</a>
+      <a href="#how">How it works</a>
+      <a href="/order-status">Check an order</a>
+      <a href="#contact">Contact</a>
+      <button class="btn cart-btn" id="openCart" aria-label="Open basket">
+        Basket <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Made to order · Kingston</p>
+        <h1 id="heroTitle">Baked for your date,<br>not for <em>a shelf</em>.</h1>
+        <p class="lede" id="heroIntro"></p>
+        <div class="hero-actions">
+          <a class="btn" href="#menu">Browse the menu</a>
+          <a class="btn ghost" href="#how">How ordering works</a>
+        </div>
+        <div class="hero-facts">
+          <div class="fact"><strong id="factLead">2 days</strong><span>minimum notice</span></div>
+          <div class="fact"><strong id="factPickup">Pickup</strong><span id="factPickupSub">and delivery</span></div>
+          <div class="fact"><strong>Pay your way</strong><span>before pickup or by transfer</span></div>
+        </div>
+      </div>
+      <div class="hero-collage" id="heroCollage"></div>
+    </div>
+  </section>
+
+  <section id="menu" class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Everything we bake</p>
+      <h2>The menu</h2>
+      <p>Choose a size or quantity where offered, add a note if you want something special, and we will confirm everything before we bake.</p>
+    </div>
+    <nav class="menu-nav" id="menuNav" aria-label="Menu sections"></nav>
+    <div id="menuRoot"></div>
+  </section>
+
+  <section id="how" class="strip">
+    <div class="wrap">
+      <div class="steps">
+        <div class="step"><div class="step-num">01</div><h4>Fill your basket</h4><p>Browse the menu and add what you need. Sizes and quantities are priced as you choose them.</p></div>
+        <div class="step"><div class="step-num">02</div><h4>Pick your date</h4><p>Tell us when you need it and whether you are collecting or want it delivered.</p></div>
+        <div class="step"><div class="step-num">03</div><h4>We confirm</h4><p>You get an order number straight away, and a call or email from us within 24 hours.</p></div>
+        <div class="step"><div class="step-num">04</div><h4>Pay & collect</h4><p>Pay before pickup, or by bank transfer before your date. Fresh out of the oven, either way.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer" id="contact">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <img id="footLogo" class="foot-logo" src="/images/logo-full-light.png" alt="The Little Whisk">
+        <p id="footTag"></p>
+      </div>
+      <div>
+        <h4>Find us</h4>
+        <p id="footContact"></p>
+      </div>
+      <div>
+        <h4>Good to know</h4>
+        <p id="footHours"></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> The Little Whisk. All rights reserved.</span>
+      <span><a href="/order-status">Check an order</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- basket -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="cartDrawer" aria-label="Your basket">
+  <div class="drawer-head">
+    <h3>Your basket</h3>
+    <button class="icon-btn" id="closeCart" aria-label="Close basket">&times;</button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot" hidden>
+    <div class="totals"><span>Subtotal</span><span id="cartSubtotal"></span></div>
+    <div class="totals grand"><span>Total</span><span id="cartTotal"></span></div>
+    <button class="btn block" id="goCheckout">Continue to checkout</button>
+  </div>
+</aside>
+
+<!-- checkout -->
+<div class="modal" id="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="checkoutTitle">Checkout</h3>
+      <button class="icon-btn" id="closeCheckout" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="checkoutError" class="alert error" hidden></div>
+      <div class="summary-box" id="checkoutSummary"></div>
+      <form id="orderForm" novalidate>
+        <div class="two-col">
+          <div class="field"><label for="cName">Your name</label><input id="cName" name="customer_name" required autocomplete="name"></div>
+          <div class="field"><label for="cPhone">Phone</label><input id="cPhone" name="phone" required autocomplete="tel" placeholder="(876) 000-0000"></div>
+        </div>
+        <div class="field"><label for="cEmail">Email <span class="hint">— your confirmation goes here</span></label><input id="cEmail" name="email" type="email" required autocomplete="email"></div>
+
+        <div class="field">
+          <label>How would you like it?</label>
+          <div class="choice-row">
+            <label class="choice"><input type="radio" name="fulfillment" value="pickup" checked><span><strong>Pickup</strong><span id="pickupHint"></span></span></label>
+            <label class="choice" id="deliveryChoice"><input type="radio" name="fulfillment" value="delivery"><span><strong>Delivery</strong><span id="deliveryHint"></span></span></label>
+          </div>
+        </div>
+        <div class="field" id="addressField" hidden><label for="cAddress">Delivery address</label><textarea id="cAddress" name="address" placeholder="Street, town, any landmark that helps"></textarea></div>
+
+        <div class="two-col">
+          <div class="field"><label for="cDate">Date you need it</label><input id="cDate" name="wanted_date" type="date" required></div>
+          <div class="field"><label for="cTime">Preferred time <span class="hint">optional</span></label><input id="cTime" name="wanted_time" type="time"></div>
+        </div>
+
+        <div class="field">
+          <label>How would you like to pay?</label>
+          <div class="choice-row">
+            <label class="choice"><input type="radio" name="payment_method" value="pay_on_pickup" checked><span><strong>Pay before pickup</strong><span>Cash or card, settled before your order goes out.</span></span></label>
+            <label class="choice"><input type="radio" name="payment_method" value="bank_transfer"><span><strong>Bank transfer</strong><span>We send details with your confirmation.</span></span></label>
+          </div>
+        </div>
+
+        <div class="field"><label for="cNotes">Anything we should know? <span class="hint">optional</span></label><textarea id="cNotes" name="notes" placeholder="Allergies, a message to pipe on top, colours for macarons…"></textarea></div>
+        <button class="btn block" type="submit" id="placeOrder">Place order</button>
+        <p class="hint" style="text-align:center;margin:.8rem 0 0;color:var(--ink-faint);font-size:.82rem">No payment is taken online — you will hear from us to confirm.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- confirmation -->
+<div class="modal" id="doneModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-body" id="doneBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/shop.js"></script>
+</body>
+</html>
